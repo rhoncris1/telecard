@@ -39,19 +39,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "I'm looking for data in the format: `PAN|MM|YY|CVV`",
     )
 
-# This function runs when a user sends any text message
+# --- THIS IS THE CHANGED PART ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handles non-command text messages and extracts card data."""
     text = update.message.text
     filtered_values = extract_card_data(text)
     
     if filtered_values:
+        # First, send the "Found matches:" message
+        await update.message.reply_text("Found matches:")
+        
+        # Then, prepare and send the results in a separate message
         response = "\n".join(filtered_values)
-        await update.message.reply_text(f"Found matches:\n\n{response}")
+        await update.message.reply_text(response)
     else:
+        # This part remains the same
         await update.message.reply_text("No matches found. Please check your input formatting.")
 
-# --- THIS IS THE CHANGED PART ---
 def main() -> None:
     """Start the bot using polling."""
     # Get the token from an environment variable for security
