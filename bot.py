@@ -51,11 +51,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     else:
         await update.message.reply_text("No matches found. Please check your input formatting.")
 
+# --- THIS IS THE CHANGED PART ---
 def main() -> None:
-    """Start the bot using webhooks."""
+    """Start the bot using polling."""
     # Get the token from an environment variable for security
     token = os.environ.get("BOT_TOKEN")
-    port = int(os.environ.get("PORT", "10000")) # Render provides a PORT environment variable
 
     if not token:
         logger.error("BOT_TOKEN environment variable not set!")
@@ -68,14 +68,9 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Set up the webhook
-    # Render will provide the URL, we just need to tell the bot to listen on the correct port
-    application.run_webhook(
-        listen="0.0.0.0",
-        port=port,
-        webhook_url_path="/webhook", # The path part of the URL
-        secret_token=os.environ.get("WEBHOOK_SECRET", "a_very_secret_string") # Optional but recommended
-    )
+    # Run the bot until the user presses Ctrl-C
+    # We use 'polling' to continuously get updates from Telegram
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
